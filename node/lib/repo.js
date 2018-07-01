@@ -50,7 +50,15 @@ function loadFromCache(url, cachedir, options) {
       return loadJsonFromFile(path.resolve(cachedir, cache[url].file), options);
     } else {
       if (fs.existsSync(path.resolve(cachedir, cache[url].date + '.json'))) {
-        fs.unlinkSync(path.resolve(cachedir, cache[url].date + '.json'));
+        try {
+          fs.unlinkSync(path.resolve(cachedir, cache[url].date + '.json'));
+        } catch (error) {
+          if (error.code !== 'ENOENT') {
+            throw error;
+          } else {
+            console.warn("Could not delete cache. Ignore this error if you are running multiple retire.js in parallel");
+          }
+        }
       }
     }
   }
@@ -66,7 +74,7 @@ function loadFromCache(url, cachedir, options) {
 
 exports.asbowerrepo = function(jsRepo) {
   var result = {};
-  Object.keys(jsRepo).map(function(k) { 
+  Object.keys(jsRepo).map(function(k) {
     (jsRepo[k].bowername || [k]).map(function(b) {
       result[b] = result[b] || { vulnerabilities: [] };
       result[b].vulnerabilities = result[b].vulnerabilities.concat(jsRepo[k].vulnerabilities);

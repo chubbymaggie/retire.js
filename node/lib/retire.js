@@ -4,7 +4,7 @@
  */
 
 var exports = exports || {};
-exports.version = '2.0.0-beta.8';
+exports.version = '2.0.0-beta.13';
 
 function isDefined(o) {
 	return typeof o !== 'undefined';
@@ -57,8 +57,8 @@ function scanhash(hash, repo) {
 	for (var component in repo) {
 		var hashes = repo[component].extractors.hashes;
 		if (!isDefined(hashes)) continue;
-		for (var i in hashes) {
-			if (i === hash) return [{ version: hashes[i], component: component, detection: 'hash' }];
+		if (hashes.hasOwnProperty(hash)) {
+			return [{ version: hashes[hash], component: component, detection: 'hash' }];
 		}
 	}
 	return [];

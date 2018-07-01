@@ -11,7 +11,8 @@ var loggers = {
   depcheck : require("./reporters/depcheck"),
   cyclonedx: require("./reporters/cyclonedx")
 };
-
+loggers.clean = loggers.console;
+loggers.jsonsimple = loggers.json;
 
 
 var colorwarn = function(x) { return x; };
@@ -36,13 +37,7 @@ var hash = {
 var writer = {
   out: console.log,
   err: function(x) { console.warn(colorwarn(x)); },
-  close : function(callback) { 
-    process.stderr.on('drain', function() {
-      process.stderr.on('drain', function() {
-        callback();
-      });
-    });
-  }
+  close : function() { }
 };
 
 var logger = {
@@ -53,7 +48,7 @@ var logger = {
 
   logDependency : function(finding) { },
   logVulnerableDependency: function(finding) { },
-  close: function(callback) { writer.close(callback); }
+  close: function() { writer.close(); }
 };
 
 
@@ -72,17 +67,13 @@ function configureFileWriter(config) {
     fileOutput.stream.write('\n');
   };
   writer.out = writer.err = writeToFile;
-  writer.close = function(callback) {
+  writer.close = function() {
     fileOutput.stream.on('finish', function() {
       fs.close(fileOutput.fileDescriptor);
-      callback();
     });
     fileOutput.stream.end();
   };
 }
-
-
-
 
 exports.open = function(config) {
   verbose = config.verbose;
